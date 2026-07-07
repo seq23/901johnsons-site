@@ -24,6 +24,7 @@ const required = [
   "docs/CLOUDFLARE_DEPLOYMENT.md",
   "docs/GOOGLE_APPS_SCRIPT_SETUP.md",
   ".env.cloudflare.example",
+  "env.cloudflare.example",
   "scripts/cloudflare/setup-cloudflare.mjs",
   "scripts/cloudflare/upload-secrets.mjs",
   "scripts/cloudflare/deploy-cloudflare.mjs",

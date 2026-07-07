@@ -9,6 +9,13 @@ const projectName = process.env.CF_PAGES_PROJECT || "901johnsons-site";
 const bucketName = process.env.CF_R2_BUCKET || "901johnsons-family-media";
 const kvName = process.env.CF_KV_NAMESPACE || "901johnsons-family-submissions";
 const productionBranch = process.env.CF_PRODUCTION_BRANCH || "main";
+const defaultCloudflareEnv = `ADMIN_UPLOAD_TOKEN=replace-with-long-random-admin-password
+GOOGLE_SHEETS_WEBHOOK_URL=https://script.google.com/macros/s/REPLACE_WITH_DEPLOYMENT_ID/exec
+FAMILY_UPDATE_SHARED_SECRET=replace-with-long-random-shared-secret
+NEXT_PUBLIC_SITE_URL=https://901johnsons.com
+# Optional. Leave blank to serve R2 files through the included /media/* function.
+R2_PUBLIC_BASE_URL=
+`;
 
 function run(args, options = {}) {
   const command = ["wrangler", ...args];
@@ -64,9 +71,17 @@ function findNamespaceIdByTitle(title) {
 function ensureEnvFile() {
   const envFile = join(root, ".env.cloudflare");
   const example = join(root, ".env.cloudflare.example");
+  const portableExample = join(root, "env.cloudflare.example");
+
   if (!existsSync(envFile)) {
-    writeFileSync(envFile, readFileSync(example, "utf8"));
-    console.log("\nCreated .env.cloudflare from .env.cloudflare.example.");
+    const source = existsSync(example)
+      ? readFileSync(example, "utf8")
+      : existsSync(portableExample)
+        ? readFileSync(portableExample, "utf8")
+        : defaultCloudflareEnv;
+
+    writeFileSync(envFile, source);
+    console.log("\nCreated .env.cloudflare.");
     console.log("Edit it before running npm run cf:secrets.");
   }
 }

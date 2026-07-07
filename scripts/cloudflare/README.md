@@ -22,7 +22,7 @@ This attempts to:
 - create the R2 bucket;
 - create production and preview KV namespaces;
 - patch `wrangler.toml` with the KV IDs;
-- create `.env.cloudflare` from `.env.cloudflare.example` if missing.
+- create `.env.cloudflare` from `.env.cloudflare.example`, `env.cloudflare.example`, or built-in defaults if missing.
 
 After this runs, commit the updated `wrangler.toml`. Cloudflare Git deploys read `wrangler.toml`, so the deployed branch must contain the real KV namespace IDs.
 
