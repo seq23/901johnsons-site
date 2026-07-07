@@ -1,0 +1,28 @@
+{
+  "name": "901johnsons-site",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Family reunion and family upkeep website for 901johnsons.com.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "pages:build": "next build",
+    "pages:preview": "wrangler pages dev out",
+    "deploy": "wrangler pages deploy out",
+    "start": "wrangler pages dev out",
+    "lint": "node scripts/validate-structure.mjs",
+    "validate:structure": "node scripts/validate-structure.mjs"
+  },
+  "dependencies": {
+    "next": "14.2.20",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.7",
+    "@types/react": "18.3.18",
+    "@types/react-dom": "18.3.5",
+    "typescript": "5.7.3",
+    "wrangler": "latest"
+  }
+}

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Family tree placeholder</title>
+  <desc id="desc">Placeholder for a Johnson family tree or keepsake image.</desc>
+  <rect width="1200" height="900" fill="#fff7e8"/>
+  <path d="M585 720V430" stroke="#6d1d2d" stroke-width="54" stroke-linecap="round"/>
+  <circle cx="600" cy="280" r="170" fill="#c79a3b"/>
+  <circle cx="425" cy="410" r="125" fill="#6d1d2d"/>
+  <circle cx="775" cy="410" r="125" fill="#6d1d2d"/>
+  <text x="600" y="820" text-anchor="middle" font-family="Georgia, serif" font-size="52" fill="#46101d">Family Tree Photo Slot</text>
+</svg>

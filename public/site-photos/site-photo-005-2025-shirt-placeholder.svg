@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">2025 reunion t-shirt placeholder</title>
+  <desc id="desc">Placeholder for the 2025 Johnson family reunion t-shirt photo.</desc>
+  <rect width="1200" height="900" fill="#fff7e8"/>
+  <path d="M395 190h410l105 125-120 110v285H410V425L290 315z" fill="#6d1d2d"/>
+  <text x="600" y="480" text-anchor="middle" font-family="Georgia, serif" font-size="64" fill="#f6e5c3">2025</text>
+  <text x="600" y="560" text-anchor="middle" font-family="Georgia, serif" font-size="44" fill="#f6e5c3">T-Shirt Photo</text>
+</svg>

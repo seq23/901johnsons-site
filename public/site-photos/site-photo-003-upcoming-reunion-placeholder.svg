@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Upcoming reunion placeholder</title>
+  <desc id="desc">Placeholder for the upcoming Johnson family reunion image.</desc>
+  <rect width="1200" height="900" fill="#fff7e8"/>
+  <circle cx="280" cy="380" r="125" fill="#c79a3b"/>
+  <circle cx="600" cy="330" r="145" fill="#6d1d2d"/>
+  <circle cx="920" cy="380" r="125" fill="#c79a3b"/>
+  <path d="M130 745c80-170 210-245 340-245s260 75 340 245z" fill="#46101d"/>
+  <path d="M390 765c70-205 220-295 360-295s290 90 360 295z" fill="#6d1d2d"/>
+  <text x="600" y="835" text-anchor="middle" font-family="Georgia, serif" font-size="50" fill="#46101d">Upcoming Reunion Photo</text>
+</svg>

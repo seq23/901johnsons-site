@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Reserve site photo placeholder</title>
+  <desc id="desc">Placeholder for a future Johnson family site image.</desc>
+  <rect width="1200" height="900" fill="#fff7e8"/>
+  <rect x="140" y="130" width="920" height="640" rx="24" fill="#f6e5c3" stroke="#6d1d2d" stroke-width="18"/>
+  <text x="600" y="415" text-anchor="middle" font-family="Georgia, serif" font-size="70" fill="#6d1d2d">Photo Slot 010</text>
+  <text x="600" y="510" text-anchor="middle" font-family="Georgia, serif" font-size="46" fill="#46101d">Reserve Image</text>
+</svg>

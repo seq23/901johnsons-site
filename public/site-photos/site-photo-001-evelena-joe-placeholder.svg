@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500" role="img" aria-labelledby="title desc">
+  <title id="title">Evelena and Joe Johnson Jr. portrait placeholder</title>
+  <desc id="desc">Cream, gold, and burgundy placeholder for the root matriarch and patriarch portrait.</desc>
+  <rect width="1200" height="1500" fill="#fff7e8"/>
+  <rect x="80" y="80" width="1040" height="1340" rx="24" fill="#6d1d2d"/>
+  <rect x="125" y="125" width="950" height="1250" rx="18" fill="#f6e5c3"/>
+  <circle cx="455" cy="505" r="150" fill="#c79a3b"/>
+  <circle cx="745" cy="505" r="150" fill="#c79a3b"/>
+  <path d="M255 1025c55-230 235-325 345-325s290 95 345 325v150H255z" fill="#6d1d2d"/>
+  <text x="600" y="1235" text-anchor="middle" font-family="Georgia, serif" font-size="58" fill="#46101d">Evelena &amp; Joe Johnson Jr.</text>
+  <text x="600" y="1305" text-anchor="middle" font-family="Georgia, serif" font-size="38" fill="#70584a">1920-1994 · 1917-1993</text>
+</svg>

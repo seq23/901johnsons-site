@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Family table placeholder</title>
+  <desc id="desc">Placeholder for a family table, recipe, or connection image.</desc>
+  <rect width="1200" height="900" fill="#fff7e8"/>
+  <ellipse cx="600" cy="470" rx="420" ry="210" fill="#6d1d2d"/>
+  <ellipse cx="600" cy="455" rx="350" ry="155" fill="#f6e5c3"/>
+  <circle cx="420" cy="455" r="55" fill="#c79a3b"/>
+  <circle cx="600" cy="455" r="55" fill="#c79a3b"/>
+  <circle cx="780" cy="455" r="55" fill="#c79a3b"/>
+  <text x="600" y="800" text-anchor="middle" font-family="Georgia, serif" font-size="52" fill="#46101d">Family Table Photo Slot</text>
+</svg>
