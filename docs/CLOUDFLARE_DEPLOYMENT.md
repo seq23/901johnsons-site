@@ -38,7 +38,45 @@ Add these Pages bindings for Production and Preview:
 | `R2_PUBLIC_BASE_URL` | Plaintext | Optional | Leave blank to serve via `/media/*` function |
 | `NEXT_PUBLIC_SITE_URL` | Plaintext | Yes | `https://901johnsons.com` |
 
-## Wrangler Commands
+## Terminal Setup Scripts
+
+Prefer the included scripts over manual Cloudflare dashboard setup.
+
+One-time login:
+
+```bash
+npx wrangler login
+```
+
+One-time resource setup:
+
+```bash
+npm run cf:setup
+```
+
+This patches `wrangler.toml` with real binding IDs. Commit the updated `wrangler.toml` before relying on Git-connected Cloudflare builds.
+
+Verify there are no placeholder bindings:
+
+```bash
+npm run cf:verify-bindings
+```
+
+Then edit `.env.cloudflare` and run:
+
+```bash
+npm run cf:secrets
+```
+
+Deploy:
+
+```bash
+npm run cf:deploy
+```
+
+The scripts live in `scripts/cloudflare/`.
+
+## Raw Wrangler Commands
 
 Create resources:
 

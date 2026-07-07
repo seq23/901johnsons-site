@@ -23,6 +23,12 @@ const required = [
   "google-apps-script/Code.gs",
   "docs/CLOUDFLARE_DEPLOYMENT.md",
   "docs/GOOGLE_APPS_SCRIPT_SETUP.md",
+  ".env.cloudflare.example",
+  "scripts/cloudflare/setup-cloudflare.mjs",
+  "scripts/cloudflare/upload-secrets.mjs",
+  "scripts/cloudflare/deploy-cloudflare.mjs",
+  "scripts/cloudflare/verify-bindings.mjs",
+  "scripts/cloudflare/README.md",
   "data/sitePhotos.ts",
   "data/reunions.ts",
   "public/site-photos/site-photo-001-evelena-joe-placeholder.svg"
@@ -54,8 +60,8 @@ if (!upload.includes("CarouselUploadForm") || !upload.includes("FamilyAnnounceme
 }
 
 const wrangler = readFileSync(join(root, "wrangler.toml"), "utf8");
-if (!wrangler.includes("FAMILY_MEDIA") || !wrangler.includes("FAMILY_SUBMISSIONS")) {
-  console.error("[validate:structure] Cloudflare R2/KV bindings are missing.");
+if (wrangler.includes("REPLACE_WITH_")) {
+  console.error("[validate:structure] wrangler.toml contains placeholder Cloudflare IDs.");
   process.exit(1);
 }
 
@@ -65,4 +71,18 @@ if (!appsScript.includes("doPost") || !appsScript.includes("setupJohnsonFamilyWo
   process.exit(1);
 }
 
-console.log("[validate:structure] OK: repo identity, routes, Cloudflare functions, Apps Script, and photo registry present");
+const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+for (const scriptName of ["cf:setup", "cf:secrets", "cf:deploy", "cf:verify-bindings"]) {
+  if (!pkg.scripts?.[scriptName]) {
+    console.error(`[validate:structure] Missing package script: ${scriptName}`);
+    process.exit(1);
+  }
+}
+
+const gitignore = readFileSync(join(root, ".gitignore"), "utf8");
+if (!gitignore.includes(".env.cloudflare")) {
+  console.error("[validate:structure] .env.cloudflare must be ignored.");
+  process.exit(1);
+}
+
+console.log("[validate:structure] OK: repo identity, routes, Cloudflare functions/scripts, Apps Script, and photo registry present");
