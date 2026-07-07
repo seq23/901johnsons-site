@@ -34,7 +34,8 @@ const required = [
   "scripts/cloudflare/README.md",
   "data/sitePhotos.ts",
   "data/reunions.ts",
-  "public/site-photos/site-photo-001-evelena-joe-placeholder.svg"
+  "public/site-photos/site-photo-001-evelena-joe-placeholder.svg",
+  "public/site-photos/johnson-family-tree-mockup.png"
 ];
 
 const missing = required.filter((file) => !existsSync(join(root, file)));
@@ -53,6 +54,12 @@ if (slotCount < 10) {
 const home = readFileSync(join(root, "app/page.tsx"), "utf8");
 if (!home.includes("Evelena Johnson") && !home.includes("rootAncestors")) {
   console.error("[validate:structure] Homepage does not reference root ancestors.");
+  process.exit(1);
+}
+
+const familyHistory = readFileSync(join(root, "app/family-history/page.tsx"), "utf8");
+if (!familyHistory.includes("johnson-family-tree-mockup.png") || familyHistory.includes("PhotoSlot")) {
+  console.error("[validate:structure] Family history page must use the large family tree mockup instead of the old hero image.");
   process.exit(1);
 }
 

@@ -335,6 +335,41 @@ p {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.family-tree-section {
+  max-width: 1420px;
+}
+
+.family-tree-heading {
+  align-items: end;
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.family-tree-heading p {
+  margin: 0;
+  max-width: 520px;
+}
+
+.family-tree-frame {
+  background: var(--white);
+  border: 6px solid var(--gold);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  max-height: 82vh;
+  overflow: auto;
+  padding: 14px;
+}
+
+.family-tree-image {
+  border: 1px solid rgba(109, 29, 45, 0.2);
+  border-radius: 4px;
+  max-width: none;
+  min-width: 1180px;
+  width: 100%;
+}
+
 .site-footer {
   background: var(--burgundy-deep);
   color: var(--cream);
@@ -358,6 +393,11 @@ p {
   .grid-2,
   .gallery {
     grid-template-columns: 1fr;
+  }
+
+  .family-tree-heading {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .hero {

@@ -1,3 +1,12 @@
 name = "901johnsons-site"
 compatibility_date = "2026-07-07"
 pages_build_output_dir = "out"
+
+[[r2_buckets]]
+binding = "FAMILY_MEDIA"
+bucket_name = "901johnsons-family-media"
+
+[[kv_namespaces]]
+binding = "FAMILY_SUBMISSIONS"
+id = "b8632c74cb0749e8ba7d3764e4e00c47"
+preview_id = "66fcef67144c4b6b8b65957b45960eae"

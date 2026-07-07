@@ -1,12 +1,9 @@
-import { PhotoSlot } from "@/components/PhotoSlot";
 import { rootAncestors } from "@/data/family";
-import { getSitePhoto } from "@/data/sitePhotos";
 
 export default function FamilyHistoryPage() {
   return (
-    <section className="page-section grid-2">
-      <PhotoSlot slot={getSitePhoto("site-photo-008")} />
-      <div>
+    <>
+      <section className="page-section">
         <p className="eyebrow">Family history</p>
         <h1>From Evelena and Joe Johnson Jr. forward.</h1>
         <p className="lead">
@@ -15,8 +12,8 @@ export default function FamilyHistoryPage() {
           {rootAncestors.patriarch.birthYear}-{rootAncestors.patriarch.deathYear}).
         </p>
         <p>
-          This page is ready for the family tree story, branch summaries, family places, oral histories,
-          and links to approved family documents.
+          The tree below is the website mockup view for the family record. It is designed to hold the
+          family branches, generation columns, and future photo placements in one large visual.
         </p>
         <div className="ancestor-grid">
           <div className="ancestor-pill">
@@ -28,7 +25,27 @@ export default function FamilyHistoryPage() {
             <span>{rootAncestors.patriarch.role}</span>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <section className="page-section family-tree-section" aria-labelledby="family-tree-heading">
+        <div className="family-tree-heading">
+          <div>
+            <p className="eyebrow">Family tree mockup</p>
+            <h2 id="family-tree-heading">Johnson Family Tree</h2>
+          </div>
+          <p>
+            This image is intentionally large. Scroll inside the frame to inspect the branches and
+            generation columns.
+          </p>
+        </div>
+        <div className="family-tree-frame" role="img" aria-label="Johnson family tree website mockup">
+          <img
+            className="family-tree-image"
+            src="/site-photos/johnson-family-tree-mockup.png"
+            alt="Johnson Family Tree website mockup with branch rows and generation columns"
+          />
+        </div>
+      </section>
+    </>
   );
 }
