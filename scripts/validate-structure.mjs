@@ -27,15 +27,22 @@ const required = [
   ".env.cloudflare.example",
   "env.cloudflare.example",
   "components/ReunionGallery.tsx",
+  "components/AdminGate.tsx",
+  "components/FamilyTree.tsx",
+  "components/ConnectionFeed.tsx",
   "scripts/cloudflare/setup-cloudflare.mjs",
   "scripts/cloudflare/upload-secrets.mjs",
   "scripts/cloudflare/deploy-cloudflare.mjs",
   "scripts/cloudflare/verify-bindings.mjs",
+  "scripts/sync-family-tree.mjs",
+  "scripts/validate-family-tree.mjs",
   "scripts/cloudflare/README.md",
   "data/sitePhotos.ts",
   "data/reunions.ts",
+  "data/familyTree.ts",
+  "data/connections.ts",
   "public/site-photos/site-photo-001-evelena-joe-placeholder.svg",
-  "public/site-photos/johnson-family-tree-mockup.png"
+  "functions/api/connection-items.ts"
 ];
 
 const missing = required.filter((file) => !existsSync(join(root, file)));
@@ -58,8 +65,21 @@ if (!home.includes("Evelena Johnson") && !home.includes("rootAncestors")) {
 }
 
 const familyHistory = readFileSync(join(root, "app/family-history/page.tsx"), "utf8");
-if (!familyHistory.includes("johnson-family-tree-mockup.png") || familyHistory.includes("PhotoSlot")) {
-  console.error("[validate:structure] Family history page must use the large family tree mockup instead of the old hero image.");
+if (!familyHistory.includes("FamilyTree") || familyHistory.includes("johnson-family-tree-mockup.png") || familyHistory.includes("PhotoSlot")) {
+  console.error("[validate:structure] Family history page must use the designed FamilyTree component instead of an image mockup or old hero image.");
+  process.exit(1);
+}
+
+const familyTreeData = readFileSync(join(root, "data/familyTree.ts"), "utf8");
+const branchCount = (familyTreeData.match(/branchName:/g) || []).length;
+const treeEntryCount = (familyTreeData.match(/"/g) || []).length / 2;
+if (
+  branchCount < 15 ||
+  treeEntryCount < 500 ||
+  !familyTreeData.includes("familyTreePersonEntryCount") ||
+  !familyTreeData.includes("familyTreeExpectedPersonEntryCount = 593")
+) {
+  console.error("[validate:structure] Family tree data must include the full ingestion and 593-entry Google Sheet target.");
   process.exit(1);
 }
 
@@ -80,10 +100,27 @@ if (!uploadForms.includes('name="galleryTarget"') || !uploadForms.includes('name
   console.error("[validate:structure] Upload form is missing reunion gallery targeting controls.");
   process.exit(1);
 }
+if (!uploadForms.includes('value="connections"') || !uploadForms.includes('value="birthday"') || !uploadForms.includes('value="recipe"')) {
+  console.error("[validate:structure] Upload/update forms are missing connection page self-serve options.");
+  process.exit(1);
+}
 
 const reunionGalleryEndpoint = readFileSync(join(root, "functions/api/reunion-gallery-items.ts"), "utf8");
 if (!reunionGalleryEndpoint.includes("reunion-gallery-item:")) {
   console.error("[validate:structure] Reunion gallery endpoint is missing KV gallery item lookup.");
+  process.exit(1);
+}
+
+const connectionEndpoint = readFileSync(join(root, "functions/api/connection-items.ts"), "utf8");
+if (!connectionEndpoint.includes("connection-item:")) {
+  console.error("[validate:structure] Connections page endpoint is missing KV connection item lookup.");
+  process.exit(1);
+}
+
+const adminPage = readFileSync(join(root, "app/admin/page.tsx"), "utf8");
+const adminGate = readFileSync(join(root, "components/AdminGate.tsx"), "utf8");
+if (!adminPage.includes("AdminGate") || !adminGate.includes("901Johnsons")) {
+  console.error("[validate:structure] Admin page must be protected by the simple family password gate.");
   process.exit(1);
 }
 
@@ -94,7 +131,7 @@ if (wrangler.includes("REPLACE_WITH_")) {
 }
 
 const appsScript = readFileSync(join(root, "google-apps-script/Code.gs"), "utf8");
-if (!appsScript.includes("doPost") || !appsScript.includes("setupJohnsonFamilyWorkbook")) {
+if (!appsScript.includes("doPost") || !appsScript.includes("doGet") || !appsScript.includes("tree_website_mock 1") || !appsScript.includes("setupJohnsonFamilyWorkbook")) {
   console.error("[validate:structure] Apps Script bridge is missing required functions.");
   process.exit(1);
 }

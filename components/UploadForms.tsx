@@ -45,6 +45,7 @@ export function CarouselUploadForm() {
         <select name="galleryTarget" required>
           <option value="homepage">Homepage family carousel</option>
           <option value="reunion">Specific family reunion year gallery</option>
+          <option value="connections">Family connections page</option>
         </select>
       </label>
       <label>
@@ -99,19 +100,24 @@ export function FamilyAnnouncementForm() {
           <option value="birth">Birth announcement</option>
           <option value="death">Death announcement</option>
           <option value="marriage">Marriage announcement</option>
+          <option value="birthday">Birthday calendar update</option>
+          <option value="anniversary">Anniversary calendar update</option>
+          <option value="recipe">Recipe or Sunday table memory</option>
+          <option value="prayer">Prayer request</option>
+          <option value="care">Care update</option>
         </select>
       </label>
       <label>
-        Primary person or couple
-        <input name="primaryNames" required placeholder="Full name(s)" />
+        Primary person, couple, recipe, or request
+        <input name="primaryNames" required placeholder="Full name(s), recipe name, or short request title" />
       </label>
       <label>
         Date
         <input name="eventDate" type="date" />
       </label>
       <label>
-        Parents, spouse, or close relatives
-        <input name="relatedNames" placeholder="Names and relationships" />
+        Parents, spouse, close relatives, or related people
+        <input name="relatedNames" placeholder="Names and relationships, if relevant" />
       </label>
       <label>
         Family branch
@@ -126,8 +132,8 @@ export function FamilyAnnouncementForm() {
         <input name="contact" required placeholder="So data managers can verify details" />
       </label>
       <label>
-        Notes for family data managers
-        <textarea name="notes" placeholder="Anything that helps confirm or place this correctly." />
+        Notes for family data managers or connections page
+        <textarea name="notes" placeholder="Details, recipe instructions, care notes, or anything that helps place this correctly." />
       </label>
       <button className="button" type="submit" disabled={state === "submitting"}>
         {state === "submitting" ? "Submitting..." : "Submit Family Update"}

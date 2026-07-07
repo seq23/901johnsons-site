@@ -1,6 +1,6 @@
 import { clean, Env, json, logSubmission, postToGoogleSheets } from "../_shared";
 
-const allowedTypes = new Set(["birth", "death", "marriage"]);
+const allowedTypes = new Set(["birth", "death", "marriage", "birthday", "anniversary", "recipe", "prayer", "care"]);
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   try {

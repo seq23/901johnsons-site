@@ -10,6 +10,15 @@ Open the master Google Sheet and decide whether the website should write to new 
 - `Birth Announcements`
 - `Death Announcements`
 - `Marriage Announcements`
+- `Birthday Calendar`
+- `Anniversary Calendar`
+- `Recipes and Table Memories`
+- `Prayer Requests`
+- `Care Updates`
+
+The family tree sync reads the existing workbook tab:
+
+- `tree_website_mock 1`
 
 ## 2. Create Apps Script
 
@@ -53,3 +62,27 @@ In Cloudflare Pages project settings, add:
 | `FAMILY_UPDATE_SHARED_SECRET` | Secret | Same private phrase used in Apps Script |
 
 The website posts to Cloudflare first. Cloudflare adds the shared secret and forwards the family update to Apps Script. Do not expose the secret in public frontend code.
+
+## 6. Sync the Family Tree From Google Sheets
+
+After deploying the updated Apps Script, run this from the repo root:
+
+```bash
+npm run family-tree:sync
+npm run validate:family-tree
+```
+
+The sync script reads `.env.cloudflare` for:
+
+```text
+GOOGLE_SHEETS_WEBHOOK_URL
+FAMILY_UPDATE_SHARED_SECRET
+```
+
+It calls Apps Script with `action=family-tree`, reads `tree_website_mock 1`, and regenerates:
+
+```text
+data/familyTree.ts
+```
+
+The workbook target count is `593` people. If the sheet changes, update the workbook first, redeploy Apps Script if needed, then run the sync again.

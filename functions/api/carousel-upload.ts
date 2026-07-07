@@ -1,6 +1,7 @@
 import { assertMedia, clean, Env, json, logSubmission, putMedia } from "../_shared";
 
 const validReunionYears = new Set(Array.from({ length: (2027 - 1985) / 2 + 1 }, (_, index) => String(1985 + index * 2)));
+const validGalleryTargets = new Set(["homepage", "reunion", "connections"]);
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   try {
@@ -13,11 +14,15 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
     const galleryTarget = clean(form.get("galleryTarget"), 40) || "homepage";
     const reunionYear = clean(form.get("reunionYear"), 10);
+    if (!validGalleryTargets.has(galleryTarget)) {
+      return json({ message: "Choose a valid place for this upload." }, 400);
+    }
     if (galleryTarget === "reunion" && !validReunionYears.has(reunionYear)) {
       return json({ message: "Choose a valid past reunion year for this gallery upload." }, 400);
     }
 
-    const storagePrefix = galleryTarget === "reunion" ? `reunions/${reunionYear}` : "carousel";
+    const storagePrefix =
+      galleryTarget === "reunion" ? `reunions/${reunionYear}` : galleryTarget === "connections" ? "connections" : "carousel";
     const saved = await putMedia(env, media, storagePrefix);
     const record = {
       id: crypto.randomUUID(),
@@ -29,10 +34,17 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       galleryTarget,
       reunionYear: galleryTarget === "reunion" ? reunionYear : "",
       media: saved,
-      status: galleryTarget === "reunion" ? "auto_added_to_reunion_gallery" : "auto_added_to_homepage_carousel"
+      status:
+        galleryTarget === "reunion"
+          ? "auto_added_to_reunion_gallery"
+          : galleryTarget === "connections"
+            ? "auto_added_to_connections_page"
+            : "auto_added_to_homepage_carousel"
     };
     if (galleryTarget === "reunion") {
       await env.FAMILY_SUBMISSIONS.put(`reunion-gallery-item:${reunionYear}:${record.id}`, JSON.stringify(record));
+    } else if (galleryTarget === "connections") {
+      await env.FAMILY_SUBMISSIONS.put(`connection-item:${record.id}`, JSON.stringify(record));
     } else {
       await env.FAMILY_SUBMISSIONS.put(`carousel-item:${record.id}`, JSON.stringify(record));
     }
@@ -42,6 +54,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       message:
         galleryTarget === "reunion"
           ? `Upload received and added to the ${reunionYear} reunion gallery.`
+          : galleryTarget === "connections"
+            ? "Upload received and added to the family connections page."
           : "Upload received and added to the family carousel.",
       mediaPath: saved.url,
       logKey

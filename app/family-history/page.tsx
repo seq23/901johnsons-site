@@ -1,3 +1,4 @@
+import { FamilyTree } from "@/components/FamilyTree";
 import { rootAncestors } from "@/data/family";
 
 export default function FamilyHistoryPage() {
@@ -12,8 +13,9 @@ export default function FamilyHistoryPage() {
           {rootAncestors.patriarch.birthYear}-{rootAncestors.patriarch.deathYear}).
         </p>
         <p>
-          The tree below is the website mockup view for the family record. It is designed to hold the
-          family branches, generation columns, and future photo placements in one large visual.
+          The tree below is a designed website version of the family workbook mockup. It carries the
+          readable names from the uploaded PDF into branch and generation sections, with room for root
+          photos, branch photos, and verified corrections.
         </p>
         <div className="ancestor-grid">
           <div className="ancestor-pill">
@@ -30,7 +32,7 @@ export default function FamilyHistoryPage() {
       <section className="page-section family-tree-section" aria-labelledby="family-tree-heading">
         <div className="family-tree-heading">
           <div>
-            <p className="eyebrow">Family tree mockup</p>
+            <p className="eyebrow">Family tree</p>
             <h2 id="family-tree-heading">Johnson Family Tree</h2>
           </div>
           <p>
@@ -38,13 +40,7 @@ export default function FamilyHistoryPage() {
             generation columns.
           </p>
         </div>
-        <div className="family-tree-frame" role="img" aria-label="Johnson family tree website mockup">
-          <img
-            className="family-tree-image"
-            src="/site-photos/johnson-family-tree-mockup.png"
-            alt="Johnson Family Tree website mockup with branch rows and generation columns"
-          />
-        </div>
+        <FamilyTree />
       </section>
     </>
   );

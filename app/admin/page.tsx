@@ -1,10 +1,11 @@
+import { AdminGate } from "@/components/AdminGate";
 import { AdminSitePhotoForm } from "@/components/AdminSitePhotoForm";
 import { PhotoSlot } from "@/components/PhotoSlot";
 import { sitePhotoSlots } from "@/data/sitePhotos";
 
 export default function AdminPage() {
   return (
-    <>
+    <AdminGate>
       <section className="page-section grid-2">
         <div>
           <p className="eyebrow">Admin</p>
@@ -35,6 +36,6 @@ export default function AdminPage() {
           ))}
         </article>
       </section>
-    </>
+    </AdminGate>
   );
 }

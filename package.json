@@ -13,6 +13,8 @@
     "cf:deploy": "node scripts/cloudflare/deploy-cloudflare.mjs",
     "cf:secrets": "node scripts/cloudflare/upload-secrets.mjs",
     "cf:verify-bindings": "node scripts/cloudflare/verify-bindings.mjs",
+    "family-tree:sync": "node scripts/sync-family-tree.mjs",
+    "validate:family-tree": "node scripts/validate-family-tree.mjs",
     "start": "wrangler pages dev out",
     "lint": "node scripts/validate-structure.mjs",
     "validate:structure": "node scripts/validate-structure.mjs"

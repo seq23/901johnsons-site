@@ -4,8 +4,43 @@ const CONFIG = {
   intakeSheetName: "Website Intake",
   birthSheetName: "Birth Announcements",
   deathSheetName: "Death Announcements",
-  marriageSheetName: "Marriage Announcements"
+  marriageSheetName: "Marriage Announcements",
+  birthdaySheetName: "Birthday Calendar",
+  anniversarySheetName: "Anniversary Calendar",
+  recipeSheetName: "Recipes and Table Memories",
+  prayerSheetName: "Prayer Requests",
+  careSheetName: "Care Updates",
+  familyTreeSheetName: "tree_website_mock 1"
 };
+
+function doGet(e) {
+  try {
+    verifySharedSecret_((e.parameter || {}).sharedSecret);
+    const action = (e.parameter || {}).action || "";
+    if (action !== "family-tree") {
+      return json_({ ok: false, message: "Unknown action." }, 400);
+    }
+
+    const workbook = SpreadsheetApp.openById(
+      PropertiesService.getScriptProperties().getProperty(CONFIG.workbookIdProperty)
+    );
+    const sheet = workbook.getSheetByName(CONFIG.familyTreeSheetName);
+    if (!sheet) {
+      throw new Error("Missing sheet tab: " + CONFIG.familyTreeSheetName);
+    }
+
+    const values = sheet.getDataRange().getDisplayValues();
+    return json_({
+      ok: true,
+      source: CONFIG.familyTreeSheetName,
+      expectedPersonEntryCount: 593,
+      exportedAt: new Date().toISOString(),
+      rows: values
+    });
+  } catch (error) {
+    return json_({ ok: false, message: error.message || "Apps Script export failed." }, 400);
+  }
+}
 
 function doPost(e) {
   try {
@@ -28,6 +63,21 @@ function doPost(e) {
     if (normalized.updateType === "marriage") {
       appendRow_(workbook, CONFIG.marriageSheetName, normalized);
     }
+    if (normalized.updateType === "birthday") {
+      appendRow_(workbook, CONFIG.birthdaySheetName, normalized);
+    }
+    if (normalized.updateType === "anniversary") {
+      appendRow_(workbook, CONFIG.anniversarySheetName, normalized);
+    }
+    if (normalized.updateType === "recipe") {
+      appendRow_(workbook, CONFIG.recipeSheetName, normalized);
+    }
+    if (normalized.updateType === "prayer") {
+      appendRow_(workbook, CONFIG.prayerSheetName, normalized);
+    }
+    if (normalized.updateType === "care") {
+      appendRow_(workbook, CONFIG.careSheetName, normalized);
+    }
 
     return json_({ ok: true, message: "Family update recorded." });
   } catch (error) {
@@ -45,7 +95,12 @@ function setupJohnsonFamilyWorkbook() {
     CONFIG.intakeSheetName,
     CONFIG.birthSheetName,
     CONFIG.deathSheetName,
-    CONFIG.marriageSheetName
+    CONFIG.marriageSheetName,
+    CONFIG.birthdaySheetName,
+    CONFIG.anniversarySheetName,
+    CONFIG.recipeSheetName,
+    CONFIG.prayerSheetName,
+    CONFIG.careSheetName
   ].forEach(function (sheetName) {
     const sheet = getOrCreateSheet_(workbook, sheetName);
     if (sheet.getLastRow() === 0) {
