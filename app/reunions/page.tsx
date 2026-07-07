@@ -13,7 +13,8 @@ export default function ReunionsPage() {
           <p className="eyebrow">Reunions</p>
           <h1>Upcoming and past family gatherings.</h1>
           <p className="lead">
-            Keep the next reunion organized and give every past reunion its own page with photos,
+            The Johnson family reunion tradition began in 1985 and continues every two years. The
+            next reunion is 2027, and every past reunion year has its own archive page for photos,
             memories, committee notes, and the official t-shirt.
           </p>
         </div>
@@ -35,7 +36,7 @@ export default function ReunionsPage() {
         </div>
       </section>
       <section className="page-section">
-        <h2>Past Reunions</h2>
+        <h2>Past Reunions Since 1985</h2>
         <div className="grid-3">
           {past.map((reunion) => (
             <article className="reunion-card" key={reunion.slug}>

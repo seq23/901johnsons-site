@@ -1,5 +1,7 @@
 import { assertMedia, clean, Env, json, logSubmission, putMedia } from "../_shared";
 
+const validReunionYears = new Set(Array.from({ length: (2027 - 1985) / 2 + 1 }, (_, index) => String(1985 + index * 2)));
+
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   try {
     const form = await request.formData();
@@ -9,7 +11,14 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     }
     assertMedia(media, "imageOrVideo");
 
-    const saved = await putMedia(env, media, "carousel");
+    const galleryTarget = clean(form.get("galleryTarget"), 40) || "homepage";
+    const reunionYear = clean(form.get("reunionYear"), 10);
+    if (galleryTarget === "reunion" && !validReunionYears.has(reunionYear)) {
+      return json({ message: "Choose a valid past reunion year for this gallery upload." }, 400);
+    }
+
+    const storagePrefix = galleryTarget === "reunion" ? `reunions/${reunionYear}` : "carousel";
+    const saved = await putMedia(env, media, storagePrefix);
     const record = {
       id: crypto.randomUUID(),
       submittedAt: new Date().toISOString(),
@@ -17,14 +26,23 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       familyBranch: clean(form.get("familyBranch")),
       caption: clean(form.get("caption"), 1000),
       title: clean(form.get("submitterName")) || "Family upload",
+      galleryTarget,
+      reunionYear: galleryTarget === "reunion" ? reunionYear : "",
       media: saved,
-      status: "auto_added_to_homepage_carousel"
+      status: galleryTarget === "reunion" ? "auto_added_to_reunion_gallery" : "auto_added_to_homepage_carousel"
     };
-    await env.FAMILY_SUBMISSIONS.put(`carousel-item:${record.id}`, JSON.stringify(record));
+    if (galleryTarget === "reunion") {
+      await env.FAMILY_SUBMISSIONS.put(`reunion-gallery-item:${reunionYear}:${record.id}`, JSON.stringify(record));
+    } else {
+      await env.FAMILY_SUBMISSIONS.put(`carousel-item:${record.id}`, JSON.stringify(record));
+    }
     const logKey = await logSubmission(env, "carousel-upload", record);
 
     return json({
-      message: "Upload received and added to the family carousel.",
+      message:
+        galleryTarget === "reunion"
+          ? `Upload received and added to the ${reunionYear} reunion gallery.`
+          : "Upload received and added to the family carousel.",
       mediaPath: saved.url,
       logKey
     });

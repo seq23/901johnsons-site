@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { uploadableReunions } from "@/data/reunions";
 
 type SubmitState = "idle" | "submitting" | "success" | "error";
 
@@ -40,11 +41,29 @@ export function CarouselUploadForm() {
         <input name="media" type="file" accept="image/*,video/*" required />
       </label>
       <label>
+        Where should this go?
+        <select name="galleryTarget" required>
+          <option value="homepage">Homepage family carousel</option>
+          <option value="reunion">Specific family reunion year gallery</option>
+        </select>
+      </label>
+      <label>
+        Reunion year
+        <select name="reunionYear" defaultValue="">
+          <option value="">Only needed for reunion gallery uploads</option>
+          {uploadableReunions.map((reunion) => (
+            <option key={reunion.year} value={reunion.year}>
+              {reunion.year} Johnson Family Reunion
+            </option>
+          ))}
+        </select>
+      </label>
+      <label>
         Caption
         <textarea name="caption" placeholder="Who is in this? Where was it taken? What year?" />
       </label>
       <button className="button" type="submit" disabled={state === "submitting"}>
-        {state === "submitting" ? "Uploading..." : "Upload to Carousel Queue"}
+        {state === "submitting" ? "Uploading..." : "Upload Photo or Video"}
       </button>
       {message ? <p className="notice">{message}</p> : null}
     </form>

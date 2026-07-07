@@ -72,14 +72,12 @@ function ensureEnvFile() {
   const envFile = join(root, ".env.cloudflare");
   const example = join(root, ".env.cloudflare.example");
   const portableExample = join(root, "env.cloudflare.example");
-
   if (!existsSync(envFile)) {
     const source = existsSync(example)
       ? readFileSync(example, "utf8")
       : existsSync(portableExample)
         ? readFileSync(portableExample, "utf8")
         : defaultCloudflareEnv;
-
     writeFileSync(envFile, source);
     console.log("\nCreated .env.cloudflare.");
     console.log("Edit it before running npm run cf:secrets.");

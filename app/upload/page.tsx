@@ -10,8 +10,8 @@ export default function UploadPage() {
           <p className="eyebrow">Upload and announce</p>
           <h1>Share what the family needs to keep.</h1>
           <p className="lead">
-            Add photos and videos for the homepage carousel queue, or send birth, marriage, and
-            homegoing updates to the family data managers.
+            Add photos and videos to the homepage carousel or to a specific past reunion year gallery.
+            You can also send birth, marriage, and homegoing updates to the family data managers.
           </p>
           <p className="notice">
             Family data submissions are structured for Google Sheets. If the webhook is not connected
@@ -23,7 +23,10 @@ export default function UploadPage() {
       <section className="page-section grid-2">
         <article className="form-panel">
           <h2>Upload a photo or video</h2>
-          <p>Use this for reunion memories, old family photos, short clips, and family moments.</p>
+          <p>
+            Use this for reunion memories, old family photos, short clips, and family moments. Choose
+            a reunion year when the upload belongs in that year's gallery.
+          </p>
           <CarouselUploadForm />
         </article>
         <article className="form-panel">

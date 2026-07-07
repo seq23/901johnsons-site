@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { PhotoSlot } from "@/components/PhotoSlot";
+import { ReunionGallery } from "@/components/ReunionGallery";
 import { getReunion, reunions } from "@/data/reunions";
 import { getSitePhoto } from "@/data/sitePhotos";
 
@@ -60,11 +61,11 @@ export default function ReunionDetailPage({ params }: { params: { slug: string }
 
       <section className="page-section">
         <h2>Gallery</h2>
-        <div className="gallery">
-          {reunion.galleryPhotoIds.map((photoId) => (
-            <PhotoSlot key={photoId} slot={getSitePhoto(photoId)} />
-          ))}
-        </div>
+        <p>
+          Family-uploaded photos and videos for {reunion.year} appear here first, followed by the
+          designated placeholder slots for official photos and t-shirt archives.
+        </p>
+        <ReunionGallery year={reunion.year} slots={reunion.galleryPhotoIds.map((photoId) => getSitePhoto(photoId))} />
       </section>
     </>
   );

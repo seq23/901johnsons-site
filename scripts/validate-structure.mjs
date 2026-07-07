@@ -15,6 +15,7 @@ const required = [
   "app/admin/page.tsx",
   "functions/api/carousel-upload.ts",
   "functions/api/carousel-items.ts",
+  "functions/api/reunion-gallery-items.ts",
   "functions/api/family-update.ts",
   "functions/api/admin/site-photo-upload.ts",
   "functions/api/site-photo.ts",
@@ -25,6 +26,7 @@ const required = [
   "docs/GOOGLE_APPS_SCRIPT_SETUP.md",
   ".env.cloudflare.example",
   "env.cloudflare.example",
+  "components/ReunionGallery.tsx",
   "scripts/cloudflare/setup-cloudflare.mjs",
   "scripts/cloudflare/upload-secrets.mjs",
   "scripts/cloudflare/deploy-cloudflare.mjs",
@@ -57,6 +59,24 @@ if (!home.includes("Evelena Johnson") && !home.includes("rootAncestors")) {
 const upload = readFileSync(join(root, "app/upload/page.tsx"), "utf8");
 if (!upload.includes("CarouselUploadForm") || !upload.includes("FamilyAnnouncementForm")) {
   console.error("[validate:structure] Upload page is missing required forms.");
+  process.exit(1);
+}
+
+const reunionData = readFileSync(join(root, "data/reunions.ts"), "utf8");
+if (!reunionData.includes("1985") || !reunionData.includes("2027") || !reunionData.includes("uploadableReunions")) {
+  console.error("[validate:structure] Reunion schedule must cover 1985 through 2027 and expose uploadable reunions.");
+  process.exit(1);
+}
+
+const uploadForms = readFileSync(join(root, "components/UploadForms.tsx"), "utf8");
+if (!uploadForms.includes('name="galleryTarget"') || !uploadForms.includes('name="reunionYear"')) {
+  console.error("[validate:structure] Upload form is missing reunion gallery targeting controls.");
+  process.exit(1);
+}
+
+const reunionGalleryEndpoint = readFileSync(join(root, "functions/api/reunion-gallery-items.ts"), "utf8");
+if (!reunionGalleryEndpoint.includes("reunion-gallery-item:")) {
+  console.error("[validate:structure] Reunion gallery endpoint is missing KV gallery item lookup.");
   process.exit(1);
 }
 
