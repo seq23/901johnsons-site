@@ -1,0 +1,16 @@
+# Next.js content-hashes everything under /_next/static/
+# (e.g. /_next/static/css/3c395b3adac3ef71.css), so a given URL can never
+# change content - a new build emits a new filename. With no _headers file at
+# all, Cloudflare Pages applied its 4-hour default to these, so returning
+# visitors revalidated identical bytes several times a day.
+#
+# public/ is copied into the `out` export that wrangler publishes
+# (pages_build_output_dir = "out"), which is how this file reaches the CDN.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML deliberately gets no Cache-Control rule here: Cloudflare Pages already
+# serves it `max-age=0, must-revalidate`, which is what makes a new deploy
+# visible immediately.
+/*
+  X-Content-Type-Options: nosniff
