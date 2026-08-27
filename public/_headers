@@ -14,3 +14,9 @@
 # visible immediately.
 /*
   X-Content-Type-Options: nosniff
+
+# The admin surface is a soft-gated utility page with no search value.
+# X-Robots-Tag is stronger than a robots.txt Disallow, which prevents crawling
+# but not URL-only indexing.
+/admin/*
+  X-Robots-Tag: noindex, nofollow
