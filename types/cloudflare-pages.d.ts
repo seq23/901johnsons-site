@@ -23,4 +23,7 @@ type PagesFunction<Env = unknown> = (context: {
   request: Request;
   env: Env;
   params: Record<string, string | string[]>;
+  // Present on every Pages Function; middleware uses it to invoke the next
+  // handler (or the static asset) in the chain.
+  next: (input?: Request | string, init?: RequestInit) => Promise<Response>;
 }) => Response | Promise<Response>;
