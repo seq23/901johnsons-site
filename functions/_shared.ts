@@ -88,18 +88,38 @@ export async function postToGoogleSheets(env: Env, payload: JsonRecord) {
   return { sent: true, status: response.status };
 }
 
-/**
- * Admin token check shared by every /api/admin route. Fails closed when
- * ADMIN_UPLOAD_TOKEN is not configured; compares in constant time.
- */
-export function adminTokenOk(env: Env, provided: string) {
-  const expected = env.ADMIN_UPLOAD_TOKEN || "";
+function tokenMatches(expected: string, provided: string) {
   if (!expected || !provided) return false;
   const a = new TextEncoder().encode(expected);
   const b = new TextEncoder().encode(provided);
   let diff = a.length ^ b.length;
   for (let i = 0; i < a.length; i++) diff |= a[i] ^ (b[i % (b.length || 1)] ?? 0);
   return diff === 0;
+}
+
+/**
+ * Admin token check shared by every /api/admin route. Fails closed when
+ * ADMIN_UPLOAD_TOKEN is not configured; compares in constant time; locks an IP
+ * out for 15 minutes after 10 wrong tokens. Returns a 401/429 response, or null
+ * when the token is good.
+ */
+export const ADMIN_LOCKOUT = { maxFails: 10, windowSeconds: 900 };
+
+export async function adminTokenCheck(env: Env, request: Request, provided: string) {
+  const failKey = `admin-fail:${await ipHash(request)}`;
+  const fails = Number((await env.FAMILY_SUBMISSIONS.get(failKey)) || 0);
+  if (fails >= ADMIN_LOCKOUT.maxFails) {
+    return json({ message: "Too many wrong tokens. Please wait 15 minutes and try again." }, 429);
+  }
+  if (tokenMatches(env.ADMIN_UPLOAD_TOKEN || "", provided)) return null;
+  await env.FAMILY_SUBMISSIONS.put(failKey, String(fails + 1), { expirationTtl: ADMIN_LOCKOUT.windowSeconds });
+  return json({ message: "Admin upload token is invalid or not configured." }, 401);
+}
+
+async function ipHash(request: Request) {
+  const ip = request.headers.get("cf-connecting-ip") || "unknown";
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`901johnsons:${ip}`));
+  return Array.from(new Uint8Array(digest).slice(0, 12), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 /**
@@ -112,11 +132,8 @@ export type DailyLimit = { kind: string; perIp: number; global: number };
 
 async function limitKeys(request: Request, limit: DailyLimit) {
   const day = new Date().toISOString().slice(0, 10);
-  const ip = request.headers.get("cf-connecting-ip") || "unknown";
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`901johnsons:${ip}`));
-  const ipHash = Array.from(new Uint8Array(digest).slice(0, 12), (byte) => byte.toString(16).padStart(2, "0")).join("");
   return {
-    ipKey: `ratelimit:${limit.kind}:ip:${ipHash}:${day}`,
+    ipKey: `ratelimit:${limit.kind}:ip:${await ipHash(request)}:${day}`,
     globalKey: `ratelimit:${limit.kind}:all:${day}`
   };
 }

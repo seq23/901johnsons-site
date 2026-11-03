@@ -5,7 +5,7 @@
 // esbuild and runs them against in-memory KV and R2.
 import { build } from "esbuild";
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -189,6 +189,38 @@ try {
     assert.equal((await review(env, { action: "reject", id: other.id, token: TOKEN })).status, 200);
     assert.equal((await feed(env)).length, 1, "rejected upload never appears");
     assert.equal([...env.FAMILY_MEDIA.store.keys()].filter((key) => key.startsWith("pending/")).length, 0, "no pending media left");
+  });
+  await check("admin token: 10 wrong tries from one IP -> 429 lockout, even with the right token", async () => {
+    const env = freshEnv();
+    const tryToken = (token, ip) => {
+      const form = new FormData();
+      form.set("token", token);
+      form.set("action", "list");
+      return mod.review.onRequestPost({
+        env,
+        request: new Request("https://x/api/admin/pending-uploads", { method: "POST", body: form, headers: { "cf-connecting-ip": ip } })
+      });
+    };
+    for (let i = 0; i < 10; i++) assert.equal((await tryToken(`guess-${i}`, "203.0.113.50")).status, 401, `wrong try ${i + 1}`);
+    assert.equal((await tryToken("guess-x", "203.0.113.50")).status, 429, "11th wrong try");
+    assert.equal((await tryToken(TOKEN, "203.0.113.50")).status, 429, "locked IP stays locked for the window");
+    assert.equal((await tryToken(TOKEN, "203.0.113.51")).status, 200, "another IP with the right token gets in");
+  });
+
+  await check("admin page holds no client-side secret and is checked by the server", async () => {
+    const files = [];
+    for (const dir of ["app", "components"]) {
+      for (const entry of readdirSync(join(root, dir), { recursive: true })) {
+        if (/\.(tsx?|jsx?)$/.test(entry)) files.push(join(dir, entry));
+      }
+    }
+    for (const file of files) {
+      const source = readFileSync(join(root, file), "utf8");
+      assert.ok(!/ADMIN_PASSWORD|901Johnsons["']/.test(source), `${file} carries an admin password`);
+      assert.ok(!/(password|token)\s*===\s*["'`]/i.test(source), `${file} compares a password/token to a literal`);
+    }
+    const gate = readFileSync(join(root, "components/AdminGate.tsx"), "utf8");
+    assert.ok(gate.includes("/api/admin/"), "AdminGate must check the token with the server");
   });
 } catch (error) {
   failures += 1;

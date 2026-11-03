@@ -1,4 +1,4 @@
-import { adminTokenOk, clean, Env, json, logSubmission, PENDING_MEDIA_PREFIX, PENDING_UPLOAD_PREFIX } from "../../_shared";
+import { adminTokenCheck, clean, Env, json, logSubmission, PENDING_MEDIA_PREFIX, PENDING_UPLOAD_PREFIX } from "../../_shared";
 
 // Review queue for anonymous family uploads, behind the same ADMIN_UPLOAD_TOKEN
 // as /api/admin/site-photo-upload. POST form fields: token, action, id.
@@ -41,9 +41,8 @@ async function readPending(env: Env, id: string) {
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   try {
     const form = await request.formData();
-    if (!adminTokenOk(env, clean(form.get("token"), 200))) {
-      return json({ message: "Admin upload token is invalid or not configured." }, 401);
-    }
+    const denied = await adminTokenCheck(env, request, clean(form.get("token"), 200));
+    if (denied) return denied;
     const action = clean(form.get("action"), 20);
 
     if (action === "list") {

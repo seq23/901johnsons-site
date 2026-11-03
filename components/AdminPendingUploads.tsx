@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { useEffect, useState } from "react";
+import { useAdminToken } from "@/components/AdminGate";
 
 type PendingItem = {
   id: string;
@@ -28,14 +29,13 @@ async function post(token: string, fields: Record<string, string>) {
 }
 
 export function AdminPendingUploads() {
-  const [token, setToken] = useState("");
+  const token = useAdminToken();
   const [items, setItems] = useState<PendingItem[] | null>(null);
   const [previews, setPreviews] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState("");
 
-  async function load(event?: FormEvent<HTMLFormElement>) {
-    event?.preventDefault();
+  async function load() {
     setBusy("list");
     const response = await post(token, { action: "list" });
     const payload = await response.json();
@@ -47,6 +47,11 @@ export function AdminPendingUploads() {
     setItems(payload.items);
     setMessage(payload.items.length ? "" : "Nothing is waiting for review.");
   }
+
+  useEffect(() => {
+    if (token) void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   async function preview(id: string) {
     setBusy(id);
@@ -71,15 +76,9 @@ export function AdminPendingUploads() {
 
   return (
     <div className="form-grid">
-      <form className="form-grid" onSubmit={load}>
-        <label>
-          Admin upload token
-          <input value={token} onChange={(event) => setToken(event.target.value)} required type="password" />
-        </label>
-        <button className="button" type="submit" disabled={busy === "list"}>
-          {busy === "list" ? "Loading..." : "Show uploads waiting for review"}
-        </button>
-      </form>
+      <button className="button" type="button" onClick={() => load()} disabled={busy === "list"}>
+        {busy === "list" ? "Loading..." : "Refresh list"}
+      </button>
       {message ? <p className="notice">{message}</p> : null}
       {(items || []).map((item) => (
         <article key={item.id} className="panel">

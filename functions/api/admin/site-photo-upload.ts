@@ -1,13 +1,12 @@
-import { adminTokenOk, assertMedia, clean, Env, json, logSubmission, putMedia } from "../../_shared";
+import { adminTokenCheck, assertMedia, clean, Env, json, logSubmission, putMedia } from "../../_shared";
 
 const validSlot = /^site-photo-0(0[1-9]|10)$/;
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   try {
     const form = await request.formData();
-    if (!adminTokenOk(env, clean(form.get("token"), 200))) {
-      return json({ message: "Admin upload token is invalid or not configured." }, 401);
-    }
+    const denied = await adminTokenCheck(env, request, clean(form.get("token"), 200));
+    if (denied) return denied;
 
     const slotId = clean(form.get("slotId"), 40);
     if (!validSlot.test(slotId)) {
