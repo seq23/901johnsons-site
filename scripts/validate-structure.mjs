@@ -119,8 +119,9 @@ if (!connectionEndpoint.includes("connection-item:")) {
 
 const adminPage = readFileSync(join(root, "app/admin/page.tsx"), "utf8");
 const adminGate = readFileSync(join(root, "components/AdminGate.tsx"), "utf8");
-if (!adminPage.includes("AdminGate") || !adminGate.includes("901Johnsons")) {
-  console.error("[validate:structure] Admin page must be protected by the simple family password gate.");
+// 3 Nov 2026: the gate checks the admin token with the server; no password in the browser bundle.
+if (!adminPage.includes("AdminGate") || !adminGate.includes("/api/admin/") || /901Johnsons|ADMIN_PASSWORD/.test(adminGate)) {
+  console.error("[validate:structure] Admin page must be protected by AdminGate, which checks the admin token with the server and holds no password.");
   process.exit(1);
 }
 

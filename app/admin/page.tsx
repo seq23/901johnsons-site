@@ -15,10 +15,6 @@ export default function AdminPage() {
             This admin page is for fixed site imagery: hero photos, reunion landing page photos, shirt
             photos, and page-specific images. It is separate from public carousel uploads.
           </p>
-          <p className="notice">
-            This starter uses a private upload token. Before public launch, put admin routes behind real
-            authentication.
-          </p>
         </div>
         <PhotoSlot slot={sitePhotoSlots[0]} />
       </section>
