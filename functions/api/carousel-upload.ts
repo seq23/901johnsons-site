@@ -1,10 +1,29 @@
-import { assertMedia, clean, Env, json, logSubmission, putMedia } from "../_shared";
+import {
+  assertMedia,
+  checkDailyLimit,
+  clean,
+  countDailyUse,
+  DailyLimit,
+  Env,
+  json,
+  logSubmission,
+  PENDING_MEDIA_PREFIX,
+  PENDING_UPLOAD_PREFIX,
+  putMedia
+} from "../_shared";
 
 const validReunionYears = new Set(Array.from({ length: (2027 - 1985) / 2 + 1 }, (_, index) => String(1985 + index * 2)));
 const validGalleryTargets = new Set(["homepage", "reunion", "connections"]);
 
+// Anonymous uploads are held for review (3 Nov 2026 security sweep): nothing a
+// visitor sends is public until a family admin approves it at /admin.
+export const uploadLimit: DailyLimit = { kind: "carousel-upload", perIp: 10, global: 100 };
+
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   try {
+    const limited = await checkDailyLimit(env, request, uploadLimit);
+    if (limited) return limited;
+
     const form = await request.formData();
     const media = form.get("media");
     if (!(media instanceof File)) {
@@ -23,7 +42,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
     const storagePrefix =
       galleryTarget === "reunion" ? `reunions/${reunionYear}` : galleryTarget === "connections" ? "connections" : "carousel";
-    const saved = await putMedia(env, media, storagePrefix);
+    const saved = await putMedia(env, media, `${PENDING_MEDIA_PREFIX}${storagePrefix}`);
     const record = {
       id: crypto.randomUUID(),
       submittedAt: new Date().toISOString(),
@@ -34,30 +53,21 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       galleryTarget,
       reunionYear: galleryTarget === "reunion" ? reunionYear : "",
       media: saved,
-      status:
-        galleryTarget === "reunion"
-          ? "auto_added_to_reunion_gallery"
-          : galleryTarget === "connections"
-            ? "auto_added_to_connections_page"
-            : "auto_added_to_homepage_carousel"
+      status: "pending_review"
     };
-    if (galleryTarget === "reunion") {
-      await env.FAMILY_SUBMISSIONS.put(`reunion-gallery-item:${reunionYear}:${record.id}`, JSON.stringify(record));
-    } else if (galleryTarget === "connections") {
-      await env.FAMILY_SUBMISSIONS.put(`connection-item:${record.id}`, JSON.stringify(record));
-    } else {
-      await env.FAMILY_SUBMISSIONS.put(`carousel-item:${record.id}`, JSON.stringify(record));
-    }
+    await env.FAMILY_SUBMISSIONS.put(`${PENDING_UPLOAD_PREFIX}${record.id}`, JSON.stringify(record));
+    await countDailyUse(env, request, uploadLimit);
     const logKey = await logSubmission(env, "carousel-upload", record);
 
+    const place =
+      galleryTarget === "reunion"
+        ? `the ${reunionYear} reunion gallery`
+        : galleryTarget === "connections"
+          ? "the family connections page"
+          : "the family carousel";
     return json({
-      message:
-        galleryTarget === "reunion"
-          ? `Upload received and added to the ${reunionYear} reunion gallery.`
-          : galleryTarget === "connections"
-            ? "Upload received and added to the family connections page."
-          : "Upload received and added to the family carousel.",
-      mediaPath: saved.url,
+      message: `Thank you. Your upload was received and will appear on ${place} once a family admin approves it.`,
+      status: "pending_review",
       logKey
     });
   } catch (error) {

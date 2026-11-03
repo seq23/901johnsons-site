@@ -1,4 +1,5 @@
 import { AdminGate } from "@/components/AdminGate";
+import { AdminPendingUploads } from "@/components/AdminPendingUploads";
 import { AdminSitePhotoForm } from "@/components/AdminSitePhotoForm";
 import { PhotoSlot } from "@/components/PhotoSlot";
 import { sitePhotoSlots } from "@/data/sitePhotos";
@@ -20,6 +21,13 @@ export default function AdminPage() {
           </p>
         </div>
         <PhotoSlot slot={sitePhotoSlots[0]} />
+      </section>
+      <section className="page-section">
+        <article className="form-panel">
+          <h2>Family uploads waiting for review</h2>
+          <p>Photos and videos sent from the upload page stay private until you approve them here.</p>
+          <AdminPendingUploads />
+        </article>
       </section>
       <section className="page-section grid-2">
         <article className="form-panel">

@@ -1,9 +1,15 @@
-import { clean, Env, json, logSubmission, postToGoogleSheets } from "../_shared";
+import { checkDailyLimit, clean, countDailyUse, DailyLimit, Env, json, logSubmission, postToGoogleSheets } from "../_shared";
 
 const allowedTypes = new Set(["birth", "death", "marriage", "birthday", "anniversary", "recipe", "prayer", "care"]);
 
+// Anonymous form: per-IP and global daily caps (3 Nov 2026 security sweep).
+export const updateLimit: DailyLimit = { kind: "family-update", perIp: 10, global: 100 };
+
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   try {
+    const limited = await checkDailyLimit(env, request, updateLimit);
+    if (limited) return limited;
+
     const form = await request.formData();
     const updateType = clean(form.get("updateType"), 80);
     if (!allowedTypes.has(updateType)) {
@@ -28,6 +34,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       return json({ message: "Name, submitter, and contact are required." }, 400);
     }
 
+    await countDailyUse(env, request, updateLimit);
     const sheetResult = await postToGoogleSheets(env, payload);
     const logKey = await logSubmission(env, "family-update", { ...payload, sheetResult });
 
