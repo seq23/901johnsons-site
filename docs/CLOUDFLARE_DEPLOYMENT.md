@@ -104,3 +104,13 @@ wrangler pages deploy out --project-name 901johnsons-site
 - `/upload` posts birth/death/marriage records to `/api/family-update`.
 - `/api/family-update` logs to KV and forwards to Google Apps Script when configured.
 - `/admin` posts designated site photos to `/api/admin/site-photo-upload`.
+
+## Upload review
+
+Photos and videos sent from `/upload` are held for review: the file goes to R2 under `pending/`
+(never served by `/media/*`) and the record to KV under `pending-upload:`. Nothing appears on the
+homepage carousel, reunion galleries or connections page until a family admin approves it in
+`/admin` ("Family uploads waiting for review", same `ADMIN_UPLOAD_TOKEN`), which moves the file and
+writes the gallery record (`functions/api/admin/pending-uploads.ts`). Uploads and family updates are
+limited to 10 per visitor (IP) and 100 in total per UTC day (`checkDailyLimit` in
+`functions/_shared.ts`). Behaviour test: `npm test`.

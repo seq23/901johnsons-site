@@ -87,3 +87,62 @@ export async function postToGoogleSheets(env: Env, payload: JsonRecord) {
   }
   return { sent: true, status: response.status };
 }
+
+/**
+ * Admin token check shared by every /api/admin route. Fails closed when
+ * ADMIN_UPLOAD_TOKEN is not configured; compares in constant time.
+ */
+export function adminTokenOk(env: Env, provided: string) {
+  const expected = env.ADMIN_UPLOAD_TOKEN || "";
+  if (!expected || !provided) return false;
+  const a = new TextEncoder().encode(expected);
+  const b = new TextEncoder().encode(provided);
+  let diff = a.length ^ b.length;
+  for (let i = 0; i < a.length; i++) diff |= a[i] ^ (b[i % (b.length || 1)] ?? 0);
+  return diff === 0;
+}
+
+/**
+ * Daily limits for anonymous public forms (3 Nov 2026 security sweep): a
+ * per-IP count and a global count per UTC day, kept in KV with a 2-day TTL.
+ * The IP is stored only as a SHA-256 hash. Call checkDailyLimit before doing
+ * work and countDailyUse after the submission was stored.
+ */
+export type DailyLimit = { kind: string; perIp: number; global: number };
+
+async function limitKeys(request: Request, limit: DailyLimit) {
+  const day = new Date().toISOString().slice(0, 10);
+  const ip = request.headers.get("cf-connecting-ip") || "unknown";
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`901johnsons:${ip}`));
+  const ipHash = Array.from(new Uint8Array(digest).slice(0, 12), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return {
+    ipKey: `ratelimit:${limit.kind}:ip:${ipHash}:${day}`,
+    globalKey: `ratelimit:${limit.kind}:all:${day}`
+  };
+}
+
+export async function checkDailyLimit(env: Env, request: Request, limit: DailyLimit) {
+  const { ipKey, globalKey } = await limitKeys(request, limit);
+  const [ipCount, globalCount] = await Promise.all([env.FAMILY_SUBMISSIONS.get(ipKey), env.FAMILY_SUBMISSIONS.get(globalKey)]);
+  if (Number(ipCount || 0) >= limit.perIp) {
+    return json({ message: "You have reached today's limit for this form. Please try again tomorrow." }, 429);
+  }
+  if (Number(globalCount || 0) >= limit.global) {
+    return json({ message: "The family site has received a lot of submissions today. Please try again tomorrow." }, 429);
+  }
+  return null;
+}
+
+export async function countDailyUse(env: Env, request: Request, limit: DailyLimit) {
+  const { ipKey, globalKey } = await limitKeys(request, limit);
+  const [ipCount, globalCount] = await Promise.all([env.FAMILY_SUBMISSIONS.get(ipKey), env.FAMILY_SUBMISSIONS.get(globalKey)]);
+  await Promise.all([
+    env.FAMILY_SUBMISSIONS.put(ipKey, String(Number(ipCount || 0) + 1), { expirationTtl: 172800 }),
+    env.FAMILY_SUBMISSIONS.put(globalKey, String(Number(globalCount || 0) + 1), { expirationTtl: 172800 })
+  ]);
+}
+
+/** Media under this R2 prefix is awaiting admin review and is never served publicly. */
+export const PENDING_MEDIA_PREFIX = "pending/";
+/** KV prefix for anonymous uploads awaiting review. Public feeds list other prefixes only. */
+export const PENDING_UPLOAD_PREFIX = "pending-upload:";
